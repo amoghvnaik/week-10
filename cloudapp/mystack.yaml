@@ -1,0 +1,41 @@
+Resources:
+        LoadBalancer:
+                Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+                Properties: 
+                  Name: "Cloud"
+                  SecurityGroups: 
+                  - "sg-0def7a29af3d46807"
+                  Subnets: 
+                  - "subnet-0ea554a22d936e69a"
+                  - "subnet-09809be20d4e9b7fc"
+                  Type: "application"
+
+
+        LaunchConfig:
+                Type: AWS::AutoScaling::LaunchConfiguration
+                Properties: 
+                  AssociatePublicIpAddress: "True"
+                  ImageId: "ami-079a2c0c2a67ddd4d"
+                  InstanceMonitoring: "True"
+                  InstanceType: "t2.micro"
+                  KeyName: "CloudFormationKeyPair"
+                  SecurityGroups: 
+                  - "sg-0def7a29af3d46807"
+  #UserData: "#!/bin/bash /n cd /home/ubuntu/bookreviewsrepo/ /n docker-compose up -d --build"
+
+        AutoScalingGroup:
+                Type: AWS::AutoScaling::AutoScalingGroup
+                Properties: 
+                  AutoScalingGroupName: "Cloud"
+                  AvailabilityZones: 
+                  - "subnet-0ea554a22d936e69a"
+                  - "subnet-09809be20d4e9b7fc"
+                  Cooldown: "30"
+                  DesiredCapacity: "1"
+                  LaunchConfigurationName: !Ref LaunchConfig
+                  LoadBalancerNames: 
+                  - !Ref LoadBalancer
+                  MaxSize: "2"
+                  MinSize: "1"
+
+
